@@ -1,0 +1,104 @@
+#################### CONFIGURATION ####################
+
+# First boot
+# Follow script to setup root and user accounts along with locales
+
+# Reboot and login as new user
+
+# Run Armbian Configuration utility
+sudo armbian-config
+# Disable firmware updates: System -> Freeze -> Freeze
+# Change Hostname: Personal -> Hostname
+# Install to eMMC: System -> Install -> 2 Boot from eMMC - system on eMMC (file system - ext4)
+
+# Power off, power on, and login as new user
+
+# Perform updates
+sudo apt update
+sudo apt upgrade
+
+#################### OCTOPRINT ####################
+
+# Install Octoprint via Paul Paukstelis script
+# https://github.com/paukstelis/octoprint_deploy
+git clone https://github.com/paukstelis/octoprint_deploy.git
+sudo octoprint_deploy/octoprint_deploy.sh
+
+#################### ACCESS POINT ####################
+# https://www.raspberrypi.com/documentation/computers/configuration.html#setting-up-a-routed-wireless-access-point
+
+# Install required software
+sudo apt install hostapd dhcpcd5
+
+# Enable the wireless access point service and set it to start when your Raspberry Pi boots:
+sudo systemctl unmask hostapd
+sudo systemctl enable hostapd
+
+# In order to provide network management services (DNS, DHCP) to wireless clients, the Raspberry Pi needs to have the dnsmasq software package installed:
+sudo apt install dnsmasq
+
+# Disable systemd-resolved and restart dnsmasq:
+sudo systemctl stop systemd-resolved
+sudo systemctl disable systemd-resolved
+sudo systemctl restart dnsmasq
+
+# Install netfilter-persistent and its plugin iptables-persistent
+# This utility helps by saving firewall rules and restoring them when the Raspberry Pi boots:
+sudo DEBIAN_FRONTEND=noninteractive apt install -y netfilter-persistent iptables-persistent
+
+# Configure static IP address
+sudo nano /etc/dhcpcd.conf
+# Add the following to the end of file and save:
+interface wlan0
+    static ip_address=192.168.4.1/24
+    nohook wpa_supplicant
+
+# To enable routing, i.e. to allow traffic to flow from one network to the other in the Raspberry Pi, create a file using the following command:
+sudo nano /etc/sysctl.d/routed-ap.conf
+#  add the contents below and save:
+# Enable IPv4 routing
+net.ipv4.ip_forward=1
+
+# Configure process by adding a single firewall rule in the Raspberry Pi:
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+# Save current firewall rules:
+sudo netfilter-persistent save
+
+# Configure the DHCP and DNS services for the wireless network
+sudo mv /etc/dnsmasq.conf /etc/dnsmasq.conf.orig
+sudo nano /etc/dnsmasq.conf
+# Add the following to the file and save it (I removed all comments which is not what is shown below):
+interface=wlan0 # Listening interface
+dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
+                # Pool of IP addresses served via DHCP
+domain=wlan     # Local wireless DNS domain
+address=/gw.wlan/192.168.4.1
+                # Alias for this router
+
+# Create the hostapd configuration file, located at /etc/hostapd/hostapd.conf, to add the various parameters for your new wireless network.
+sudo nano /etc/hostapd/hostapd.conf
+# Add the info below and save:
+country_code=US
+interface=wlan0
+ssid=NameOfNetwork
+hw_mode=g
+channel=7
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=AardvarkBadgerHedgehog
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+
+# Reboot to see if SSID is active
+
+# Add a manual service restart in rc.local
+sudo nano /etc/rc.local
+# Add the following line before exit 0
+sudo systemctl restart hostapd
+
+# Change permission of rc.local file
+sudo chmod +x /etc/rc.local
