@@ -20,3 +20,8 @@ The T95 Mini could be found for ~$33 on [Amazon](https://www.amazon.com/dp/B07SM
 ## Download (or build) Inovato firmware & flash onto SD card
 - Firmware direct download: https://www.inovato.net/Armbian/Armbian_23.05.0-trunk_Inovato-quadra_bullseye_legacy_5.15.105.img.gz
 - Instructions for building firmware: https://forum.inovato.com/post/building-armbian-from-source-12449428?pid=1333459893
+
+## Flash T95 Mini with Armbian firmware
+1. Flash an SD card (8 - 16GB) with the Armbian firmware using Baleana Etcher, Rasperry Pi Imager, etc.
+2. With power cable unplugged, insert SD card into T95 Mini
+4. Plug in power cable
