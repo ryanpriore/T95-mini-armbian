@@ -18,7 +18,7 @@ The T95 Mini could be found for ~$33 on [Amazon](https://www.amazon.com/dp/B07SM
 - Video output: HDMI (SD/HD max)
 
 ## Download (or build) Inovato firmware & flash onto SD card
-- Firmware direct download: https://www.inovato.net/Armbian/Armbian_23.05.0-trunk_Inovato-quadra_bullseye_legacy_5.15.105.img.gz
+- Firmware download: https://www.inovato.net/Armbian (As of 2/6/2024: Armbian_23.08.0-trunk_Inovato-quadra_bullseye_legacy_5.15.120.img.gz)
 - Instructions for building firmware: https://forum.inovato.com/post/building-armbian-from-source-12449428?pid=1333459893
 
 ## Flash T95 Mini with Armbian firmware
